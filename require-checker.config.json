@@ -1,0 +1,23 @@
+{
+    "symbol-whitelist" : [
+        "null", "true", "false",
+        "static", "self", "parent",
+        "array", "string", "int", "float", "bool", "iterable", "callable", "void", "object",
+        "add_action",
+        "wp_dequeue_script",
+        "wp_dequeue_style",
+        "wp_deregister_script",
+        "wp_deregister_style"
+
+    ],
+    "php-core-extensions" : [
+        "Core",
+        "date",
+        "pcre",
+        "Phar",
+        "Reflection",
+        "SPL",
+        "standard"
+    ],
+    "scan-files": []
+}
