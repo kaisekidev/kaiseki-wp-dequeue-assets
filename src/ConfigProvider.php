@@ -22,6 +22,11 @@ final class ConfigProvider
                 ],
                 'styles' => [],
             ],
+            'hook' => [
+                'provider' => [
+                    DequeueAssets::class,
+                ],
+            ],
             'dependencies' => [
                 'aliases' => [],
                 'factories' => [
