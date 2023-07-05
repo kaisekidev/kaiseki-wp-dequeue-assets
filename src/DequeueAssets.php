@@ -27,8 +27,8 @@ final class DequeueAssets implements HookCallbackProviderInterface
     public array $customHookConfigs;
 
     /**
-     * @param array<string, DequeueConfig> $scripts
-     * @param array<string, DequeueConfig> $styles
+     * @param array<string, bool|DequeueConfig> $scripts
+     * @param array<string, bool|DequeueConfig> $styles
      */
     public function __construct(
         private readonly array $scripts,

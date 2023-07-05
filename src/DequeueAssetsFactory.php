@@ -15,9 +15,9 @@ class DequeueAssetsFactory
     public function __invoke(ContainerInterface $container): DequeueAssets
     {
         $config = Config::get($container);
-        /** @var array<string, DequeueConfig> $scripts */
+        /** @var array<string, bool|DequeueConfig> $scripts */
         $scripts = $config->array('dequeue_assets/scripts', []);
-        /** @var array<string, DequeueConfig> $styles */
+        /** @var array<string, bool|DequeueConfig> $styles */
         $styles = $config->array('dequeue_assets/styles', []);
         return new DequeueAssets($scripts, $styles);
     }
