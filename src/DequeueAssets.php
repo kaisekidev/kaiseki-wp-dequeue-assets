@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace Kaiseki\WordPress\DequeueAssets;
 
+use Kaiseki\WordPress\Context\Filter\ContextFilterInterface;
 use Kaiseki\WordPress\Hook\HookCallbackProviderInterface;
 
 use function is_array;
-use function is_bool;
 use function is_callable;
 
 /**
- * @phpstan-type DequeueCondition bool|callable(): bool
+ * @phpstan-type DequeueCondition bool|ContextFilterInterface
  * @phpstan-type DequeueConfig array{
  *      action?: string,
- *      dequeue?: bool|DequeueCondition,
+ *      dequeue?: DequeueCondition,
  *      priority?: int,
  * }
  * @phpstan-type DequeueCallback callable(string $handle): void
  */
 final class DequeueAssets implements HookCallbackProviderInterface
 {
-    /** @var array<string, DequeueCondition|array<string, DequeueConfig>> $defaultHookConfigs */
+    /** @var array<string, array<string, DequeueConfig>|DequeueCondition> $defaultHookConfigs */
     public array $defaultHookConfigs;
-    /** @var array<string, DequeueCondition|array<string, DequeueConfig>> $customHookConfigs */
+    /** @var array<string, array<string, DequeueConfig>|DequeueCondition> $customHookConfigs */
     public array $customHookConfigs;
 
     /**
-     * @param array<string, bool|DequeueConfig> $scripts
-     * @param array<string, bool|DequeueConfig> $styles
+     * @param array<string, DequeueCondition|DequeueConfig> $scripts
+     * @param array<string, DequeueCondition|DequeueConfig> $styles
      */
     public function __construct(
         private readonly array $scripts,
@@ -47,7 +47,7 @@ final class DequeueAssets implements HookCallbackProviderInterface
     }
 
     /**
-     * @param array<string, DequeueCondition|DequeueConfig>  $configs
+     * @param array<string, DequeueCondition|DequeueConfig> $configs
      *
      * @return array{array<string, DequeueCondition>, array<string, DequeueConfig>}
      */
@@ -56,7 +56,7 @@ final class DequeueAssets implements HookCallbackProviderInterface
         $defaultHookConfigs = [];
         $customHookConfigs = [];
         foreach ($configs as $handle => $config) {
-            if (is_callable($config) || is_bool($config)) {
+            if ($config === true || $config instanceof ContextFilterInterface) {
                 $defaultHookConfigs[$handle] = $config;
                 continue;
             }
@@ -70,15 +70,13 @@ final class DequeueAssets implements HookCallbackProviderInterface
 
     /**
      * @param array<string, DequeueCondition> $configs
-     * @param callable(string $handle): void $dequeueCallback
-     *
-     * @return void
+     * @param DequeueCallback                 $dequeueCallback
      */
     private function registerDefaultHooks(array $configs, callable $dequeueCallback): void
     {
         foreach ($configs as $handle => $condition) {
             if (
-                !(is_callable($condition) && $condition())
+                !($condition instanceof ContextFilterInterface && $condition())
                 && $condition !== true
             ) {
                 continue;
@@ -93,9 +91,7 @@ final class DequeueAssets implements HookCallbackProviderInterface
 
     /**
      * @param array<string, DequeueConfig> $configs
-     * @param DequeueCallback $dequeueCallback
-     *
-     * @return void
+     * @param DequeueCallback              $dequeueCallback
      */
     private function registerCustomHooks(array $configs, callable $dequeueCallback): void
     {
@@ -119,11 +115,9 @@ final class DequeueAssets implements HookCallbackProviderInterface
 
     /**
      * @param DequeueCallback $dequeueCallback
-     * @param string   $handle
-     * @param string   $action
-     * @param int      $priority
-     *
-     * @return void
+     * @param string          $handle
+     * @param string          $action
+     * @param int             $priority
      */
     private function registerCustomHook(callable $dequeueCallback, string $handle, string $action, int $priority): void
     {
