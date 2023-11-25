@@ -53,6 +53,10 @@ class DequeueAssetsFactory
                 return $config;
             }
 
+            if (!is_array($config)) {
+                return $this->getPipeline($config, $container);
+            }
+
             if (!isset($config['dequeue'])) {
                 /** @var ConfigDequeueCondition $condition */
                 $condition = $config;
