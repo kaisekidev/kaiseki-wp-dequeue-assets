@@ -28,14 +28,14 @@ final class DequeueAssets implements HookCallbackProviderInterface
     public function dequeueAssets(): void
     {
         foreach ($this->scripts as $handle => $condition) {
-            if ($this->checkCondition($condition)) {
+            if (!$this->shouldDequeue($condition)) {
                 continue;
             }
             $this->dequeueScript($handle);
         }
 
         foreach ($this->styles as $handle => $condition) {
-            if ($this->checkCondition($condition)) {
+            if (!$this->shouldDequeue($condition)) {
                 continue;
             }
             $this->dequeueStyle($handle);
@@ -54,7 +54,7 @@ final class DequeueAssets implements HookCallbackProviderInterface
         wp_dequeue_style($handle);
     }
 
-    private function checkCondition(bool|ContextFilterInterface $condition): bool
+    private function shouldDequeue(bool|ContextFilterInterface $condition): bool
     {
         if ($condition === true) {
             return true;
