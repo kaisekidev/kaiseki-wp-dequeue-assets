@@ -15,24 +15,16 @@ use function is_bool;
 
 /**
  * @phpstan-type ContextFilterType class-string<ContextFilterInterface>|ContextFilterInterface
- * @phpstan-type ConfigDequeueCondition ContextFilterType|list<ContextFilterType>
- * @phpstan-type ConfigDequeueConfig array{
- *       action?: string,
- *       dequeue?: bool|ConfigDequeueCondition,
- *       priority?: int,
- *  }
- *
- * @phpstan-import-type DequeueCondition from DequeueAssets
- * @phpstan-import-type DequeueConfig from DequeueAssets
+ * @phpstan-type ContextFilterTypes ContextFilterType|list<ContextFilterType>
  */
 class DequeueAssetsFactory
 {
     public function __invoke(ContainerInterface $container): DequeueAssets
     {
         $config = Config::get($container);
-        /** @var array<string, bool|ConfigDequeueCondition|ConfigDequeueConfig> $scripts */
+        /** @var array<string, bool|ContextFilterTypes> $scripts */
         $scripts = $config->array('dequeue_assets/scripts', []);
-        /** @var array<string, bool|ConfigDequeueCondition|ConfigDequeueConfig> $styles */
+        /** @var array<string, bool|ContextFilterTypes> $styles */
         $styles = $config->array('dequeue_assets/styles', []);
         return new DequeueAssets(
             $this->getConfigs($scripts, $container),
@@ -41,10 +33,10 @@ class DequeueAssetsFactory
     }
 
     /**
-     * @param array<string, bool|ConfigDequeueCondition|ConfigDequeueConfig> $configs
-     * @param ContainerInterface                                             $container
+     * @param array<string, bool|ContextFilterTypes> $configs
+     * @param ContainerInterface                     $container
      *
-     * @return array<string, DequeueCondition|DequeueConfig>
+     * @return array<string, bool|ContextFilterInterface>
      */
     private function getConfigs(array $configs, ContainerInterface $container): array
     {
@@ -53,39 +45,8 @@ class DequeueAssetsFactory
                 return $config;
             }
 
-            if (!is_array($config)) {
-                return $this->getPipeline($config, $container);
-            }
-
-            if (!isset($config['dequeue'])) {
-                /** @var ConfigDequeueCondition $condition */
-                $condition = $config;
-                return $this->getPipeline($condition, $container);
-            }
-
-            if (is_bool($config['dequeue'])) {
-                return $config;
-            }
-
-            return [
-                // @phpstan-ignore-next-line
-                ...$config,
-                'dequeue' => $this->getPipeline($config['dequeue'], $container),
-            ];
+            $map = is_array($config) ? $config : [$config];
+            return new ContextFilterPipeline(...Config::initClassMap($container, $map));
         }, $configs);
-    }
-
-    /**
-     * @param ConfigDequeueCondition $condition
-     * @param ContainerInterface     $container
-     *
-     * @return ContextFilterInterface
-     */
-    private function getPipeline(
-        string|ContextFilterInterface|array $condition,
-        ContainerInterface $container
-    ): ContextFilterInterface {
-        $map = is_array($condition) ? $condition : [$condition];
-        return new ContextFilterPipeline(...Config::initClassMap($container, $map));
     }
 }
