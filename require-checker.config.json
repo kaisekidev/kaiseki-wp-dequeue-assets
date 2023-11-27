@@ -4,6 +4,7 @@
         "static", "self", "parent",
         "array", "string", "int", "float", "bool", "iterable", "callable", "void", "object",
         "add_action",
+        "is_admin",
         "wp_dequeue_script",
         "wp_dequeue_style",
         "wp_deregister_script",

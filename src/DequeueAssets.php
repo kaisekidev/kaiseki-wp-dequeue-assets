@@ -21,7 +21,9 @@ final class DequeueAssets implements HookCallbackProviderInterface
 
     public function registerHookCallbacks(): void
     {
-
+        if (is_admin()) {
+            return;
+        }
         add_action('wp_enqueue_scripts', [$this,  'dequeueAssets'], 11);
     }
 
@@ -56,12 +58,7 @@ final class DequeueAssets implements HookCallbackProviderInterface
 
     private function shouldDequeue(bool|ContextFilterInterface $condition): bool
     {
-        if ($condition === true) {
-            return true;
-        }
-        if ($condition instanceof ContextFilterInterface) {
-            return $condition() !== true;
-        }
-        return false;
+        return $condition === true
+            || ($condition instanceof ContextFilterInterface && $condition() === true);
     }
 }
