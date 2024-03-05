@@ -5,9 +5,16 @@ declare(strict_types=1);
 namespace Kaiseki\WordPress\DequeueAssets;
 
 use Kaiseki\WordPress\Context\Filter\ContextFilterInterface;
-use Kaiseki\WordPress\Hook\HookCallbackProviderInterface;
+use Kaiseki\WordPress\Hook\HookProviderInterface;
 
-final class DequeueAssets implements HookCallbackProviderInterface
+use function add_action;
+use function is_admin;
+use function wp_dequeue_script;
+use function wp_dequeue_style;
+use function wp_deregister_script;
+use function wp_deregister_style;
+
+final class DequeueAssets implements HookProviderInterface
 {
     /**
      * @param array<string, bool|ContextFilterInterface> $scripts
@@ -19,12 +26,13 @@ final class DequeueAssets implements HookCallbackProviderInterface
     ) {
     }
 
-    public function registerHookCallbacks(): void
+    public function addHooks(): void
     {
         if (is_admin()) {
             return;
         }
-        add_action('wp_enqueue_scripts', [$this,  'dequeueAssets'], 11);
+        add_action('wp_enqueue_scripts', [$this, 'dequeueAssets'], 999);
+        add_action('wp_footer', [$this, 'dequeueAssets'], 999);
     }
 
     public function dequeueAssets(): void

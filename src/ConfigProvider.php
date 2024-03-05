@@ -13,13 +13,7 @@ final class ConfigProvider
     {
         return [
             'dequeue_assets' => [
-                'scripts' => [
-//                    'plugin-handle' => [
-//                        'dequeue' => fn() => !is_user_logged_in(),
-//                        'action' => 'plugin_hook',
-//                        'priority' => 50,
-//                    ],
-                ],
+                'scripts' => [],
                 'styles' => [],
             ],
             'hook' => [

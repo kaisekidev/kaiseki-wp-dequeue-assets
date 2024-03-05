@@ -21,11 +21,12 @@ class DequeueAssetsFactory
 {
     public function __invoke(ContainerInterface $container): DequeueAssets
     {
-        $config = Config::get($container);
+        $config = Config::fromContainer($container);
         /** @var array<string, bool|ContextFilterTypes> $scripts */
-        $scripts = $config->array('dequeue_assets/scripts', []);
+        $scripts = $config->array('dequeue_assets.scripts');
         /** @var array<string, bool|ContextFilterTypes> $styles */
-        $styles = $config->array('dequeue_assets/styles', []);
+        $styles = $config->array('dequeue_assets.styles');
+
         return new DequeueAssets(
             $this->getConfigs($scripts, $container),
             $this->getConfigs($styles, $container)
@@ -46,6 +47,7 @@ class DequeueAssetsFactory
             }
 
             $map = is_array($config) ? $config : [$config];
+
             return new ContextFilterPipeline(...Config::initClassMap($container, $map));
         }, $configs);
     }
