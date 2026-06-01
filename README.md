@@ -3,9 +3,10 @@
 Conditionally dequeue and deregister WordPress scripts and styles using context filters.
 
 A `kaiseki/wp-hook` `HookProviderInterface` wired through `ConfigProvider`: list the script/style
-handles you want gone and, optionally, the condition under which to remove them. Conditions are either
-`true` (always, on the front end) or a `kaiseki/wp-context` `ContextFilterInterface` so you can scope
-removal to specific templates, post types, etc.
+handles you want gone and, optionally, the condition under which to remove them. A condition is either
+`true` (always, on the front end) or a `kaiseki/wp-context` `ContextFilterInterface` — given as an
+instance, a class-string resolved from the container, or a list of filters combined into a
+`ContextFilterPipeline` — so you can scope removal to specific templates, post types, etc.
 
 ## Installation
 
